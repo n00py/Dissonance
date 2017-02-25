@@ -23,7 +23,6 @@ def start_listener(port):
     print 'Socket now listening'
     return s
 
-
 def establish_connection(conn):
 
     # Function for handling connections. This will be used to create threads
@@ -73,6 +72,7 @@ def send_payload(conn, payload):
 
 
 def windows_shell(conn):
+    #mdns()
     establish_connection(conn)
     open_cmd(conn)
     send_payload(conn, payload)
