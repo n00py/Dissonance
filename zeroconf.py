@@ -1460,7 +1460,7 @@ class ServiceInfo(object):
             elif record.type == _TYPE_TXT:
                 if record.name == self.name:
                     self._set_text(record.text)
- 
+
     def request(self, zc, timeout):
         """Returns true if the service could be discovered on the
         network, and updates this object with details discovered.
