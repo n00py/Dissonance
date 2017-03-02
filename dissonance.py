@@ -187,6 +187,7 @@ def start(payload):
 
 blacklist = [] # Blacklist for systems that have alread connected
 
+
 def main():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-b','--bonjour',help=' Use this option to broadcast MDNS advertisements when starting the server', required=False, action='store_true')
