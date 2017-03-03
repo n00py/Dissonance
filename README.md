@@ -1,4 +1,6 @@
 # Dissonance - Rogue Synergy server
+
+For more information on this tool read the blog post at: https://www.n00py.io/2017/03/compromising-synergy-clients-with-a-rogue-synergy-server/
 ```
  ,-~~-.___.
   / |  x     \\
