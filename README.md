@@ -34,4 +34,4 @@ For more information view the blog post located here: TBA
 ###Future Ideas:
 - OS detection
 - Dynamic payload selection
-- Add fucnctionality for SSL
+- Add functionality for SSL
