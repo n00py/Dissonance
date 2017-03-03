@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import sys
 import socket
-import logging
 import argparse
 from thread import *
 from time import sleep
