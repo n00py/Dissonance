@@ -14,7 +14,9 @@ This script was designed to spoof a Synergy server and to entice users to connec
 
 ## INSTALL:
 apt install git
+
 git clone https://github.com/n00py/Dissonance.git
+
 pip install zeroconf 
 ## USAGE:
 
