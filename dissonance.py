@@ -154,17 +154,12 @@ def on_service_state_change(zeroconf, service_type, name, state_change):
     sleep(0.1)
 
 def browser():
-    logging.basicConfig(level=logging.DEBUG)
-    if len(sys.argv) > 1:
-        assert sys.argv[1:] == ['--debug']
-        logging.getLogger('zeroconf').setLevel(logging.DEBUG)
 
     zeroconf = Zeroconf()
 
     serverBrowser = ServiceBrowser(zeroconf, "_synergyServerZeroconf._tcp.local.", handlers=[on_service_state_change])
     sleep(5)
     clientBrowser = ServiceBrowser(zeroconf, "_synergyClientZeroconf._tcp.local.", handlers=[on_service_state_change])
-    print("\nBrowsing services, press any key to start the server...\n")
     trigger = True
     try:
         while trigger == True:
