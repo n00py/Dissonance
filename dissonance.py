@@ -6,7 +6,6 @@ import logging
 import argparse
 from thread import *
 from time import sleep
-from scapy.all import *
 from zeroconf import ServiceBrowser, ServiceStateChange, ServiceInfo, Zeroconf
 
 def banner():
