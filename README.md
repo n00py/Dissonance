@@ -37,4 +37,4 @@ For more information view the blog post located here: TBA
 - OS detection
 - Dynamic payload selection
 - Add functionality for SSL
-- Cipboard napping
+- Cipboard nabbing
